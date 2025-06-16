@@ -46,8 +46,8 @@ export const AppContextProvider = ({ children }) => {
   const removeFromCart = (itemId) => {
     let cardData = structuredClone(cartItems);
     if (cardData[itemId]) {
-      cartItems[itemId] -= 1;
-      if (cartData[itemId] === 0) {
+      cardData[itemId] -= 1;
+      if (cardData[itemId] === 0) {
         delete cardData[itemId];
       }
     }
