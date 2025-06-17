@@ -1,18 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { dummyOrders } from "../assets/assets";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const MyOrders = () => {
   const [myOrders, setMyOrders] = useState([]);
-  const { currency } = useAppContext();
+  const { currency, axios, user } = useAppContext();
 
   const fetchMyOrders = async () => {
-    setMyOrders(dummyOrders);
+    try {
+      console.log("Fetching orders for userId:", user._id);
+      const { data } = await axios.get(`/api/order/user?userId=${user._id}`);
+
+      console.log("API Response:", data);
+
+      if (data.success) {
+        console.log("Orders found:", data.orders.length);
+
+        setMyOrders(data.orders);
+      }
+    } catch (error) {
+      console.log("Fetch Error:", error);
+      toast.error(error.response?.data?.message || "Failed to fetch orders");
+    }
   };
 
   useEffect(() => {
-    fetchMyOrders();
-  }, []);
+    if (user) {
+      fetchMyOrders();
+    }
+  }, [user]);
 
   return (
     <div className="mt-16 pb-16">
@@ -30,7 +48,7 @@ const MyOrders = () => {
             <span>OrderId: {order._id}</span>
             <span>Payment: {order.paymentType}</span>
             <span>
-              Total Amount:{currency} {order.amoount}
+              Total Amount:{currency} {order.amount}
             </span>
           </p>
           {order.items.map((item, index) => (
