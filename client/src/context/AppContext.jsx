@@ -102,6 +102,25 @@ export const AppContextProvider = ({ children }) => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    //update database cart items
+    const updateCart = async () => {
+      try {
+        const { data } = await axios.post("/api/cart/update", { cartItems });
+
+        if (!data.success) {
+          console.warn("Cart update failed:", data.message);
+        }
+      } catch (error) {
+        console.error("Update cart error:", error);
+      }
+    };
+
+    if (user) {
+      updateCart();
+    }
+  }, [cartItems]);
+
   //get cart item count
   const getCartCount = () => {
     let totalCount = 0;
