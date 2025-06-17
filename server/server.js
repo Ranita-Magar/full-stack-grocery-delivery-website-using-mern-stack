@@ -8,6 +8,7 @@ import sellerRouter from "./routes/SellerRoute.js";
 import connectCloudinary from "./configs/cloudinary.js";
 import productRouter from "./routes/ProductRoute.js";
 import cartRouter from "./routes/CartRoute.js";
+import addressRouter from "./routes/AddressRoute.js";
 
 const app = express();
 ``;
@@ -32,6 +33,7 @@ app.use("/api/user", userRouter);
 app.use("/api/seller", sellerRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
+app.use("/api/address", addressRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
