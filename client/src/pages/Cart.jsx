@@ -15,6 +15,7 @@ const Cart = () => {
     getCartAmount,
     axios,
     user,
+    setCartItems,
   } = useAppContext();
 
   const [cartArray, setCartArray] = useState([]);
@@ -64,7 +65,40 @@ const Cart = () => {
     }
   }, [user]);
 
-  const placeOrder = async () => {};
+  const placeOrder = async () => {
+    try {
+      if (!selectedAddress) {
+        return toast.error("Please select an address");
+      }
+
+      //place order with COD
+      if (paymentOption === "COD") {
+        const totalAmount = getCartAmount() + (getCartAmount() * 2) / 100;
+
+        const { data } = await axios.post("/api/order/cod", {
+          userId: user._id,
+          items: cartArray.map((item) => ({
+            product: item._id,
+            quantity: item.quantity,
+            price: item.offerPrice,
+          })),
+          address: selectedAddress._id, // Address at order level
+          amount: totalAmount,
+          paymentType: paymentOption,
+        });
+
+        if (data.success) {
+          toast.success(data.message);
+          setCartItems({});
+          navigate("/my-orders");
+        } else {
+          toast.error(data.message);
+        }
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return products.length > 0 && cartItems ? (
     <div className="flex flex-col md:flex-row mt-16">
