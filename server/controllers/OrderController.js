@@ -21,7 +21,7 @@ export const placeOrderCOD = async (req, res) => {
     //add tax change (2%)
     amount += Math.floor(amount * 0.2);
 
-    await Order.create({
+    const newOrder = await Order.create({
       userId,
       items,
       amount,
