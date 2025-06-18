@@ -29,7 +29,7 @@ export const placeOrderCOD = async (req, res) => {
       paymentType,
     });
 
-    console.log("Order created:", newOrder);
+    // console.log("Order created:", newOrder);
     res.json({ success: true, message: "Order place successfully" });
   } catch (error) {
     return res.json({ success: false, message: error.message });
@@ -45,7 +45,6 @@ export const getUserOrders = async (req, res) => {
     // First, let's check what orders exist for this user without any conditions
     const allUserOrders = await Order.find({ userId });
     console.log("All orders for user:", allUserOrders.length);
-    console.log("Sample order structure:", allUserOrders[0]);
 
     // Now let's try the original query
     const orders = await Order.find({
@@ -76,13 +75,33 @@ export const getUserOrders = async (req, res) => {
 // give all order data for  seller/admin /api/prder/seller
 export const getAllOrders = async (req, res) => {
   try {
+    console.log("Fetching all orders for seller/admin");
+
+    // First, let's see all orders without any filter
+    const allOrders = await Order.find({})
+      .populate("items.product address")
+      .sort({ createdAt: -1 });
+
+    console.log("Total orders in database:", allOrders.length);
+
+    // Try the filtered query
     const orders = await Order.find({
-      $or: [{ paymntType: "cod" }, { isPaid: true }],
+      $or: [{ paymentType: "cod" }, { isPaid: true }], // Fixed: paymentType instead of paymntType
     })
       .populate("items.product address")
       .sort({ createdAt: -1 });
+
+    console.log("Filtered orders:", orders.length);
+
+    // If no filtered orders but we have orders in DB, return all orders
+    if (orders.length === 0 && allOrders.length > 0) {
+      console.log("No orders match filter, returning all orders");
+      return res.json({ success: true, orders: allOrders });
+    }
+
     res.json({ success: true, orders });
   } catch (error) {
+    console.log("Error in getAllOrders:", error);
     return res.json({ success: false, message: error.message });
   }
 };
